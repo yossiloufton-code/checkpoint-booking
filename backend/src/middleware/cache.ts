@@ -25,14 +25,11 @@ export function cacheGet(ttlSeconds = 30) {
         return res.json(JSON.parse(cached));
       }
     } catch (e) {
-      // if redis hiccups, just continue
     }
 
-    // wrap res.json to capture body
     const originalJson = res.json.bind(res);
     res.json = (body: any) => {
       res.setHeader("X-Cache", "MISS");
-      // fire-and-forget set
       getRedis()
         .then((r) => r?.setEx(key, ttlSeconds, JSON.stringify(body)))
         .catch(() => {});

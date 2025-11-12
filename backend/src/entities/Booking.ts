@@ -30,7 +30,6 @@ export class Booking {
   @Column({ type: "varchar", default: "CONFIRMED" })
   status!: BookingStatus;
 
-  // NEW: hold expiry (used when status === "PENDING")
   @Column({ type: "timestamptz", nullable: true })
   expiresAt!: Date | null;
 

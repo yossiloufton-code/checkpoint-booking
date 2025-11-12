@@ -25,7 +25,7 @@ export class User {
   name!: string;
 
   @Column({ type: "varchar", default: "MEMBER" })
-  role!: UserRole;  // 👈 NEW
+  role!: UserRole;
 
   @OneToMany(() => Booking, (booking) => booking.user)
   bookings!: Booking[];

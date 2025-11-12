@@ -6,13 +6,10 @@ import { authLimiter, roomsLimiter, bookingsLimiter } from "../middleware/rateLi
 
 const router = Router();
 
-// Stricter on auth
 router.use("/auth", authLimiter, authRoutes);
 
-// Moderate on rooms search/list
 router.use("/rooms", roomsLimiter, roomRoutes);
 
-// Stricter on bookings mutations
 router.use("/bookings", bookingsLimiter, bookingRoutes);
 
 export default router;

@@ -1,20 +1,15 @@
 import rateLimit, { type Options } from "express-rate-limit";
 import type { Request, Response } from "express";
 
-/** Build a stable client key (never undefined) */
 function clientKey(req: Request): string {
-  // prefer real IP; fall back to XFF or remoteAddress
   const xff = (req.headers["x-forwarded-for"] as string | undefined)?.split(",")[0]?.trim();
   return req.ip || xff || req.socket.remoteAddress || "anon";
 }
 
-/** Common options (typed as Partial<Options>) */
 const baseOptions: Partial<Options> = {
   standardHeaders: true,
   legacyHeaders: false,
-  // don’t rate-limit preflight
   skip: (req: Request, _res: Response) => req.method === "OPTIONS",
-  // v7 signature requires string | Promise<string>
   keyGenerator: (req: Request, _res: Response) => clientKey(req),
   message: { message: "Too many requests, please try again later." },
 };
@@ -22,8 +17,8 @@ const baseOptions: Partial<Options> = {
 /** Baseline limiter for all /api traffic */
 export const apiRateLimiter = rateLimit({
   ...baseOptions,
-  windowMs: 60 * 1000,  // 1 minute
-  limit: 300,           // v7 uses "limit" (NOT "max")
+  windowMs: 60 * 1000,
+  limit: 300,           
 } as Options);
 
 /** Stricter: auth endpoints */

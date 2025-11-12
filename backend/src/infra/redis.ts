@@ -1,7 +1,6 @@
 // src/infra/redis.ts
 import { createClient } from "redis";
 
-// Infer the exact client type from createClient:
 type RedisClient = ReturnType<typeof createClient>;
 
 let redis: RedisClient | null = null;
@@ -20,10 +19,10 @@ export async function getRedis(): Promise<RedisClient | null> {
         await client.connect();
         await client.ping();
         console.log("[redis] connected");
-        redis = client; // ✅ types line up now
+        redis = client; 
     } catch (e) {
         console.warn("[redis] unavailable, will run without cache");
-        redis = null; // ✅ consistent with return type
+        redis = null; 
     }
 
     // graceful shutdown
