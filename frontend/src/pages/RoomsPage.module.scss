@@ -1,0 +1,357 @@
+/* ---------------- Variables ---------------- */
+$transition-fast: 160ms ease; // added
+$page-bg: #f4f5fb;
+$primary: #2563eb;
+$primary-soft: rgba(37, 99, 235, 0.1);
+$primary-dark: #1d4ed8;
+$text-main: #111827;
+$text-muted: #6b7280;
+$border-subtle: #e5e7eb;
+$card-bg: #ffffff;
+$radius-lg: 18px;
+$radius-xl: 24px;
+$shadow-soft: 0 20px 45px rgba(15, 23, 42, 0.08);
+$shadow-subtle: 0 10px 25px rgba(15, 23, 42, 0.05);
+
+/* ---------------- Page Layout ---------------- */
+.page {
+  min-height: calc(100vh - 64px);
+  padding: 40px 0 64px;
+  background:
+    radial-gradient(circle at top left, #e0f2fe 0, transparent 50%),
+    radial-gradient(circle at bottom right, #fee2e2 0, transparent 55%),
+    $page-bg;
+  display: flex;
+  justify-content: center;
+}
+
+.pageInner {
+  width: 100%;
+  max-width: 1120px;
+  padding: 0 24px;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: $text-main;
+  margin-bottom: 24px;
+}
+
+.noResults {
+  text-align: center;
+  font-size: 1.1rem;
+  color: $text-muted;
+  margin-top: 40px;
+}
+
+/* ---------------- Filters Bar ---------------- */
+.filtersBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  align-items: center;
+  padding: 18px 22px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffffff, #f9fafb);
+  box-shadow: $shadow-soft;
+  margin-bottom: 32px;
+  position: relative;
+  min-height: 110px;
+
+}
+
+.filterItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+}
+
+.label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $text-muted;
+}
+
+.input {
+  line-height: 1.2;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid $border-subtle;
+  padding: 0 14px;
+  font-size: 0.9rem;
+  color: $text-main;
+  background: #f9fafb;
+  outline: none;
+  transition: border-color $transition-fast, box-shadow $transition-fast, background-color $transition-fast;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    border-color: #cbd5f5;
+    background: #ffffff;
+  }
+
+  &:focus {
+    border-color: $primary;
+    background: #ffffff;
+    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.18);
+  }
+}
+
+.roleInfo {
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: $text-muted;
+}
+
+/* react-datepicker alignment & layering */
+.filtersBar .react-datepicker-wrapper,
+.filtersBar .react-datepicker__input-container {
+  width: 100%;
+}
+
+.react-datepicker-popper {
+  z-index: 60 !important; // above cards/header
+}
+
+/* ---------------- Primary Button ---------------- */
+.primaryButton {
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 10px 24px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, $primary, $primary-dark);
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.45);
+  transition: transform $transition-fast, box-shadow $transition-fast, filter $transition-fast;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 36px rgba(37, 99, 235, 0.5);
+    filter: brightness(1.04);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 9px 22px rgba(37, 99, 235, 0.35);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+    box-shadow: none;
+    transform: none;
+  }
+}
+
+/* ---------------- Rooms Grid & Cards ---------------- */
+.roomsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.roomCard {
+  background: $card-bg;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-subtle;
+  padding: 16px 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  transition: transform $transition-fast, box-shadow $transition-fast, border-color $transition-fast, background-color $transition-fast;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+    border-color: rgba(37, 99, 235, 0.25);
+    background-color: #ffffff;
+  }
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.cardTitle {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: $text-main;
+  margin-bottom: 2px;
+}
+
+.cardLocation {
+  font-size: 0.85rem;
+  color: $text-muted;
+}
+
+.cardBody {
+  font-size: 0.84rem;
+  color: $text-main;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cardAmenities {
+  color: $text-muted;
+  font-size: 0.8rem;
+}
+
+.cardDates {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: $primary-soft;
+  color: $primary-dark;
+  font-size: 0.78rem;
+  align-self: flex-start;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+  gap: 8px;
+}
+
+/* status pill used in RoomCard */
+.statusPill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+
+  &.statusAvailable {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+  }
+
+  &.statusUnavailable {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+  }
+}
+
+/* Book / Action buttons on cards */
+.secondaryButton {
+  border-radius: 999px;
+  border: none;
+  padding: 8px 18px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: $primary-dark;
+  background: #eef2ff;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.24);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color $transition-fast, transform $transition-fast, box-shadow $transition-fast, color $transition-fast;
+
+  &:hover:not(:disabled) {
+    background: #e0ecff;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.28);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 6px 14px rgba(79, 70, 229, 0.22);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+    box-shadow: none;
+  }
+}
+
+/* ---------------- Pager ---------------- */
+.Pager {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin: 12px 0 28px 0;
+
+  span {
+    font-size: 0.85rem;
+    color: $text-muted;
+  }
+
+  select {
+    border: 1px solid $border-subtle;
+    border-radius: 10px;
+    padding: 6px 10px;
+    background: white;
+    font-size: 0.9rem;
+    color: $text-main;
+    cursor: pointer;
+    transition: border 0.15s;
+
+    &:hover {
+      border-color: $primary;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $primary-dark;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    }
+  }
+
+  .ghost {
+    background: transparent;
+    color: $primary;
+    border: 1px solid $primary;
+    box-shadow: none;
+    padding: 8px 16px;
+
+    &:hover:not(:disabled) {
+      background-color: $primary-soft;
+    }
+  }
+}
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 1024px) {
+  .filtersBar {
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pageInner {
+    padding: 0 16px;
+  }
+
+  .filtersBar {
+    padding: 16px 14px;
+    border-radius: 18px;
+  }
+
+  .filterItem {
+    min-width: 100%;
+  }
+
+  .primaryButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
