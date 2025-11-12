@@ -1,11 +1,11 @@
 # checkpoint-booking
 
-🏢 Room Booking Platform
+## 🏢 Room Booking Platform
 
 A scalable room booking system built with React (frontend) and Node.js + Express (backend).
 The system supports user registration, authentication, room search, and booking management — following the design and implementation requirements of a production-grade booking platform.
 
-🧭 High-Level Architecture
+## 🧭 High-Level Architecture
                      ┌────────────────────────────┐
                      │        Frontend (SPA)       │
                      │  React 18 + Vite + Context  │
@@ -36,11 +36,11 @@ The system supports user registration, authentication, room search, and booking 
   └────────────────────┘   └────────────────────┘   └───────────────────┘
 
 
-Scalable design:
+## Scalable design:
 Stateless frontend + backend → horizontally scalable via CDN and load balancer.
 Backend health endpoints allow automated failover and multi-region deployment.
 
-📁 Project Structure
+### 📁 Project Structure
 /booking-app
 │
 ├── backend/       # Node.js + Express microservice
@@ -70,181 +70,135 @@ Backend health endpoints allow automated failover and multi-region deployment.
     │   └── main.tsx, App.tsx
     └── package.json
 
-⚙️ Backend Overview
-🧩 Architecture
+## ⚙️ Backend Overview
+### 🧩 Architecture
 
-Stack: Node.js, Express, TypeScript, TypeORM, PostgreSQL.
+- Stack: Node.js, Express, TypeScript, TypeORM, PostgreSQL.
+- Security: Helmet, JWT auth, rate limiting, centralized error handling.
+- Cache: apicache for short-TTL caching on read endpoints.
+- Health: /healthz (liveness), /readyz (DB readiness).
+- Scalability: stateless service; horizontally scalable.
 
-Security: Helmet, JWT auth, rate limiting, centralized error handling.
-
-Cache: apicache for short-TTL caching on read endpoints.
-
-Health: /healthz (liveness), /readyz (DB readiness).
-
-Scalability: stateless service; horizontally scalable.
-
-🛠️ Key Endpoints
-Auth
-Method	Endpoint	Description
-POST	/api/auth/register	Register new user
-POST	/api/auth/login	Login and receive JWT
-POST	/api/auth/refresh	Refresh access token
-Rooms
-Method	Endpoint	Description
-GET	/api/rooms?location&minCapacity&startTime&endTime&page&limit	Search & paginate available rooms (cached)
-Bookings
-Method	Endpoint	Description
+### 🛠️ Key Endpoints
+#### Auth
+    POST	/api/auth/register	Register new user
+    POST	/api/auth/login	Login and receive JWT
+    POST	/api/auth/refresh	Refresh access token
+#### Rooms
+    GET	/api/rooms?location&minCapacity&startTime&endTime&page&limit	Search & paginate available rooms (cached)
+#### Bookings
 POST	/api/bookings	Create a booking (auth required)
 		Returns 409 if overlap detected
-💾 Database Schema
+		
+### 💾 Database Schema
 
-Users
-
-id (PK), email (unique), password_hash, created_at
-
-
-Rooms
-
-id (PK), name, location, capacity, available_from, available_to
+#### Users
+ - id (PK), email (unique), password_hash, created_at
 
 
-Bookings
+#### Rooms
+ - id (PK), name, location, capacity, available_from, available_to
 
-id (PK), user_id (FK), room_id (FK),
-start_time, end_time, status, created_at
 
-🔒 Concurrency Handling
+#### Bookings
+- id (PK), user_id (FK), room_id (FK),
+  start_time, end_time, status, created_at
+
+#### 🔒 Concurrency Handling
 
 Booking overlaps prevented by SQL:
-
 start_time < :endTime AND end_time > :startTime
 
-
-DB constraint option:
-
+##### DB constraint option:
 EXCLUDE USING gist (room_id WITH =, tstzrange(start_time,end_time) WITH &&)
 
-
-Optional per-room advisory lock:
-
+#### Optional per-room advisory lock:
 SELECT pg_advisory_xact_lock(hashtext(room_id));
 
-🚀 Scalability & Fault Tolerance
+### 🚀 Scalability & Fault Tolerance
+ - Stateless API, health endpoints for orchestration (K8s, ECS, Docker).
+ - Short-TTL cache invalidated after booking creation.
+ - Pagination to limit payloads.
+ - Ready for Redis + read replicas.
+ - Future: message queue for async emails/logs.
 
-Stateless API, health endpoints for orchestration (K8s, ECS, Docker).
-
-Short-TTL cache invalidated after booking creation.
-
-Pagination to limit payloads.
-
-Ready for Redis + read replicas.
-
-Future: message queue for async emails/logs.
-
-💻 Frontend Overview
-🧩 Architecture
-
+## 💻 Frontend Overview
+### 🧩 Architecture
 Stack: React 18 + TypeScript + Vite + SCSS.
-
 Routing: React Router (protected routes).
-
 State: Context API (AuthContext, RoomsContext, BookingsContext).
-
 API: axios with JWT interceptor.
-
 UX: Debounced search, pagination, toasts, responsive layout.
 
-🧱 Main Features
+### 🧱 Main Features
+ - User registration, login, or guest mode.
+ - Room search with filters and pagination.
+ - Booking creation, confirmation, and cancellation.
+ - Auto-refresh & caching in contexts.
+ - Toast notifications for feedback.
 
-User registration, login, or guest mode.
-
-Room search with filters and pagination.
-
-Booking creation, confirmation, and cancellation.
-
-Auto-refresh & caching in contexts.
-
-Toast notifications for feedback.
-
-🔐 Authentication
-
-JWT tokens stored in memory + localStorage.
-
+### 🔐 Authentication
+ - JWT tokens stored in memory + localStorage.
 Context exposes:
-
-isAuthenticated
-
-isGuest
-
-isMember
-
-roleLabel
+ - isAuthenticated
+ - isGuest
+ - isMember
+ - roleLabel
 
 Syncs across browser tabs via storage event.
 
-🧭 Data Flow
+### 🧭 Data Flow
 
-User logs in → JWT stored → axios interceptor adds Authorization header.
+ - User logs in → JWT stored → axios interceptor adds Authorization header.
+ - RoomsContext fetches rooms via /rooms API (cached server-side).
+ - BookingsContext loads bookings only when authenticated.
+ - UI auto-refreshes after booking/cancel/confirm actions.
 
-RoomsContext fetches rooms via /rooms API (cached server-side).
+### 🧠 Concurrency & Consistency
 
-BookingsContext loads bookings only when authenticated.
+ - Frontend prevents duplicate submissions by disabling buttons while pending.
+ - Backend enforces strict overlap validation and transactional inserts.
+ - Safe retries possible with optional Idempotency-Key header.
 
-UI auto-refreshes after booking/cancel/confirm actions.
+### 📈 Scalability & Fault Tolerance
 
-🧠 Concurrency & Consistency
+ - Frontend: Static SPA → deployable via any CDN (Netlify, Vercel, S3 + CloudFront).
+ - Backend: Horizontal scaling via load balancer; /healthz removes bad nodes.
+ - DB: Supports read replicas and constraints for consistency.
+ - Security: Helmet, JWT, rate limits, sanitized inputs.
 
-Frontend prevents duplicate submissions by disabling buttons while pending.
+### 🧩 Optional Components (future-ready)
 
-Backend enforces strict overlap validation and transactional inserts.
+ - Redis: distributed cache for cross-instance search.
+ - SQS / RabbitMQ: async booking confirmation emails.
+ - Monitoring: ELK / CloudWatch / Sentry.
+ - Analytics: lightweight events for usage insights.
+ - WAF: optional layer-7 protection.
 
-Safe retries possible with optional Idempotency-Key header.
-
-📈 Scalability & Fault Tolerance
-
-Frontend: Static SPA → deployable via any CDN (Netlify, Vercel, S3 + CloudFront).
-
-Backend: Horizontal scaling via load balancer; /healthz removes bad nodes.
-
-DB: Supports read replicas and constraints for consistency.
-
-Security: Helmet, JWT, rate limits, sanitized inputs.
-
-🧩 Optional Components (future-ready)
-
-Redis: distributed cache for cross-instance search.
-
-SQS / RabbitMQ: async booking confirmation emails.
-
-Monitoring: ELK / CloudWatch / Sentry.
-
-Analytics: lightweight events for usage insights.
-
-WAF: optional layer-7 protection.
-
-🧪 Run Locally
-Backend
+### 🧪 Run Locally
+#### Backend
 cd backend
 npm install
 npm run dev
 
+Visit: http://localhost:4000/healthz
 
-Visit: http://localhost:3001/healthz
-
-Frontend
+#### Frontend
 cd frontend
 npm install
 npm run dev
 
-
 Visit: http://localhost:5173/
 
-🧰 Environment Variables (Backend)
+### 🧰 Environment Variables (Backend)
+#### working variabls below:
 Variable	Description
-PORT	API server port
-DB_HOST	Postgres host
-DB_PORT	Postgres port
-DB_USER	DB username
-DB_PASS	DB password
-DB_NAME	DB name
-JWT_SECRET	JWT signing key
+NODE_ENV=development
+PORT=4000
+JWT_SECRET=change_me_in_prod
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASS=123456
+DB_NAME=postgres
+
