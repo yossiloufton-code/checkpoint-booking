@@ -1,34 +1,54 @@
-// src/App.tsx
 import { BrowserRouter as Router, Routes, Route, Navigate, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { RoomsPage } from "./pages/RoomsPage";
 import { BookingsPage } from "./pages/BookingsPage";
-import { LoginPage } from "./pages/LoginPage"; // <- your login page
+import { LoginPage } from "./pages/LoginPage";
 import { RoomsProvider } from "./context/RoomsContext";
 import { BookingsProvider } from "./context/BookingsContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useAuth } from "./hooks/useAuth";
+import React from "react";
 import "./App.scss";
 
 export default function App() {
   return (
     <Router>
       <RoomsProvider>
-        <BookingsProvider>
+        {/* <BookingsProvider> */}
           <MainLayout />
-        </BookingsProvider>
+        {/* </BookingsProvider> */}
       </RoomsProvider>
     </Router>
   );
 }
 
 function StartGate() {
-  const { user, loading } = useAuth();
-  if (loading) return null;
-  return user ? <Navigate to="/rooms" replace /> : <Navigate to="/login" replace />;
+  return <Navigate to="/rooms" replace />;
+}
+
+function EnsureSession({ children }: { children: React.ReactNode }) {
+  const { user, loading, loginAsGuest } = useAuth();
+  const [booting, setBooting] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!loading && !user && !booting) {
+      setBooting(true);
+      (async () => {
+        try {
+          await loginAsGuest(); 
+        } finally {
+          setBooting(false);
+        }
+      })();
+    }
+  }, [loading, user, booting, loginAsGuest]);
+
+  if (loading || (!user && booting)) return null;
+
+  return <>{children}</>;
 }
 
 function MainLayout() {
-  const { user, roleLabel, loginAsGuest, logout } = useAuth();
+  const { user, roleLabel, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -57,30 +77,24 @@ function MainLayout() {
           </NavLink>
         </nav>
 
-        {/* Hide top-right actions while on the auth page */}
         {!isAuthPage && (
           <div className="auth-actions">
             {!user ? (
-              <>
-                <button
-                  className="btn-secondary"
-                  onClick={async () => {
-                    await loginAsGuest();
-                    navigate("/rooms");
-                  }}
-                >
-                  Continue as Guest
-                </button>
-                <button className="btn-primary" onClick={() => navigate("/login")}>
-                  Login
-                </button>
-              </>
+              <button className="btn-primary" onClick={() => navigate("/login")}>
+                Login
+              </button>
             ) : (
               <div className="user-info">
                 <span className={`user-chip ${roleLabel === "Member" ? "member" : "guest"}`}>
                   {roleLabel}
                 </span>
-                <button className="logout-btn" onClick={logout}>
+                <button
+                  className="logout-btn"
+                  onClick={() => {
+                    logout();
+                    navigate("/login");
+                  }}
+                >
                   Logout
                 </button>
               </div>
@@ -90,18 +104,35 @@ function MainLayout() {
       </header>
 
       <Routes>
-        {/* Start on login if not authenticated */}
         <Route path="/" element={<StartGate />} />
 
+        {/* Explicit auth route: does NOT auto-guest */}
         <Route path="/login" element={<LoginPage />} />
 
-        <Route path="/rooms" element={<RoomsPage />} />
+        {/* Everything inside EnsureSession requires a session. If not present, we auto guest. */}
+        <Route
+          path="/rooms"
+          element={
+            <EnsureSession>
+              <RoomsPage />
+            </EnsureSession>
+          }
+        />
 
-        <Route element={<ProtectedRoute allowGuest />}>
-          <Route path="/bookings" element={<BookingsPage />} />
+        <Route
+          element={
+            <EnsureSession>
+              <ProtectedRoute allowGuest />
+            </EnsureSession>
+          }
+        >
+          <Route path="/bookings" element={
+            <BookingsProvider>
+              <BookingsPage />
+            </BookingsProvider>
+          } />
         </Route>
 
-        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>

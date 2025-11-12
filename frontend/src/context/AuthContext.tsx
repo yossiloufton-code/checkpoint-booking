@@ -22,13 +22,11 @@ interface AuthContextValue {
   user: User | null;
   loading: boolean;
 
-  // derived helpers
   isAuthenticated: boolean;   // ✅ new
   isGuest: boolean;
   isMember: boolean;
   roleLabel: "Guest" | "Member" | "Unknown";
 
-  // actions
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string, role: Role) => Promise<void>;
   loginAsGuest: () => Promise<void>;
@@ -124,8 +122,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(null);
   }, []);
 
-  // derived helpers
-  const isAuthenticated = !!user;              // ✅ new
+  const isAuthenticated = !!user;   
   const isGuest = user?.role === "GUEST";
   const isMember = user?.role === "MEMBER";
   const roleLabel = isMember ? "Member" : isGuest ? "Guest" : "Unknown";
@@ -134,7 +131,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     () => ({
       user,
       loading,
-      isAuthenticated,   // ✅ include it
+      isAuthenticated, 
       isGuest,
       isMember,
       roleLabel,

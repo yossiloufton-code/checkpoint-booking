@@ -97,7 +97,6 @@ export const BookingsProvider: React.FC<{ children: React.ReactNode }> = ({
   const location = useLocation();
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  /** hydrate rooms for the current batch (no persistent cache) */
   const hydrateRoomsOnce = useCallback(async (list: Booking[]): Promise<Booking[]> => {
     const ids = Array.from(
       new Set(
@@ -114,7 +113,6 @@ export const BookingsProvider: React.FC<{ children: React.ReactNode }> = ({
           const r = await getRoomById(id);
           map.set(id, r);
         } catch {
-          /* ignore missing room fetch errors; keep whatever the server sent */
         }
       })
     );
@@ -222,9 +220,20 @@ export const BookingsProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   useEffect(() => {
+    const onBookingsRoute =
+      location.pathname.startsWith("/bookings")
+
+    console.log(onBookingsRoute)
+    if (!onBookingsRoute) return;
+
     void refreshBookings(state.page, state.pageSize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // once on mount
+  }, [
+    isAuthenticated,
+    location.pathname,
+    state.page,
+    state.pageSize,
+    refreshBookings,
+  ]);
 
   const value = useMemo<Ctx>(
     () => ({

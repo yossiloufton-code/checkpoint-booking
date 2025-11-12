@@ -41,7 +41,6 @@ export async function fetchMe() {
   return res.data;
 }
 
-// NEW: guest login
 export async function loginGuest() {
   const res = await apiClient.post<AuthResponse>("/auth/guest");
   return res.data;

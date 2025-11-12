@@ -1,12 +1,18 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useBookings } from "../context/BookingsContext";
 import { BookingsList } from "../components/bookings/BookingsList";
 import { Pager } from "../components/common/Pager";
 import styles from "./RoomsPage.module.scss";
 
 export const BookingsPage: React.FC = () => {
-  const { bookings, loading, page, pageSize, total, hasMore, goToPage, setPageSize } = useBookings();
+  const { refreshBookings, bookings, loading, page, pageSize, total, hasMore, goToPage, setPageSize } = useBookings();
 
+   useEffect(() => {
+    void (async () => {
+      await refreshBookings(page, pageSize);
+    })();
+  }, [refreshBookings, page, pageSize]);
+  
   return (
     <div className={styles.page}>
       <div className={styles.pageInner}>

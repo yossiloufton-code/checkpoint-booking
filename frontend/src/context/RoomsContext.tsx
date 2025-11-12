@@ -5,19 +5,18 @@ import { getRooms, type Room } from "../api/rooms";
 import { holdBooking } from "../api/bookings";
 import { toast } from "react-toastify";
 
-/** Expected backend list shape */
 type ApiList<T> = {
   data: T[];
-  total: number;     // total rows
-  page: number;      // 1-based page index
-  hasMore: boolean;  // more rows after this page?
+  total: number; 
+  page: number;  
+  hasMore: boolean;  
 };
 
 export interface RoomsSearchParams {
   location?: string;
   minCapacity?: number;
-  startTime?: string; // ISO
-  endTime?: string;   // ISO
+  startTime?: string;
+  endTime?: string;  
 }
 
 type State = {
@@ -76,7 +75,7 @@ function reducer(state: State, action: Action): State {
 
 /* ---------- Context API ---------- */
 type Ctx = State & {
-  searchRooms: (params: RoomsSearchParams) => Promise<void>; // resets to page 1
+  searchRooms: (params: RoomsSearchParams) => Promise<void>; 
   goToPage: (page: number) => Promise<void>;
   setPageSize: (n: number) => Promise<void>;
   refresh: () => Promise<void>;
@@ -89,7 +88,7 @@ export const RoomsProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [state, dispatch] = useReducer(reducer, initialState);
 
   // timers to re-fetch when holds expire
-  const expiryTimersRef = useRef<Map<string, number>>(new Map()); // roomId -> timeoutId
+  const expiryTimersRef = useRef<Map<string, number>>(new Map()); 
 
   // Normalize backend response even if it returns a bare array temporarily
   const normalize = useCallback(
@@ -98,9 +97,9 @@ export const RoomsProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         const data = raw as Room[];
         return {
           data,
-          total: data.length,            // if your BE doesn’t send total yet
+          total: data.length,       
           page,
-          hasMore: data.length === pageSize, // naive guess
+          hasMore: data.length === pageSize,
         };
       }
       return raw as ApiList<Room>;
@@ -190,10 +189,8 @@ export const RoomsProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           endTime: checkOut.toISOString(),
         });
 
-        // Refresh current page so the held room disappears immediately
         await refresh();
 
-        // Schedule refresh at hold expiry so it reappears if not confirmed
         if ((pending as any)?.expiresAt) {
           const exp = new Date((pending as any).expiresAt);
           scheduleRefreshAt(roomId, exp);

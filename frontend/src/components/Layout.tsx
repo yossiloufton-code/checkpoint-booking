@@ -1,10 +1,11 @@
 import React from "react";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import styles from "./Layout.module.scss";
 
 export const Layout: React.FC = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className={styles.layout}>
@@ -24,7 +25,10 @@ export const Layout: React.FC = () => {
               </span>
               <button
                 className={`${styles.button} ${styles["button--ghost"]}`}
-                onClick={logout}
+                onClick={() => {
+                  navigate('/login');
+                  logout();
+                }}
               >
                 Logout
               </button>

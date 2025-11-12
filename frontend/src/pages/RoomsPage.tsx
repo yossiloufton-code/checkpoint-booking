@@ -42,7 +42,6 @@ export const RoomsPage: React.FC = () => {
   }
 
   function handleDatesChange(start: Date | null, end: Date | null) {
-    // No viewing restriction — just normalize order.
     if (start && end && end <= start) {
       end = addDays(start, 1);
     }

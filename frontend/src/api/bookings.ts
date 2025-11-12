@@ -39,7 +39,6 @@ export async function cancelBooking(bookingId: string) {
   return res.data as Booking;
 }
 
-// NEW: pagination support (server should accept ?page & ?limit)
 export async function getMyBookings(params?: { page?: number; limit?: number }) {
   const res = await apiClient.get("/bookings/my", { params });
   return res.data as Booking[] | { data: Booking[]; total: number; page: number; hasMore: boolean };
